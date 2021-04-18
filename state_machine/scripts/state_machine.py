@@ -72,21 +72,25 @@ class state_machine_node(object):
             rospy.loginfo("State :%s", state_sub.data)
             self.state = state_sub.data
         elif self.mode == "hard":
-            self.turn= state_sub.data
-            rospy.loginfo("Turn :%s", state_sub.data)
+            if state_sub.data in {"L","R"}:
+                self.turn= state_sub.data
+                rospy.loginfo("Turn :%s", state_sub.data)
 
 
     def autoMode(self):
         rospy.loginfo("Change to Auto Mode")
         self.mode="auto"
+        self.stop()
     
     def hardcodeMode(self):
         rospy.loginfo("Change to Semi Hardcode Mode")
         self.mode="hard"
+        self.stop()
     
     def manualMode(self):
         rospy.loginfo("Change to Manual Mode")
         self.mode="manual"
+        self.stop()
 
     def leftForward(self):
         rospy.loginfo("Manual:Q")
@@ -162,7 +166,7 @@ class state_machine_node(object):
         leftBut = tk.Button(manualSate, text="A", width=10,bd=2, cursor="exchange", command = lambda: self.left())
         leftBut.grid(row=2, column=0, columnspan=1)
 
-        forwardBut = tk.Button(manualSate, text="W", width=10,bd=2, cursor="exchange", command = lambda: self.stop())
+        forwardBut = tk.Button(manualSate, text="Stop", width=10,bd=2, cursor="exchange", command = lambda: self.stop())
         forwardBut.grid(row=2, column=1, columnspan=1)
 
         rightBut = tk.Button(manualSate, text="D", width=10,bd=2, cursor="exchange", command = lambda: self.right())
@@ -185,7 +189,7 @@ class state_machine_node(object):
         while not rospy.is_shutdown():
             rospy.loginfo("Mode: %s State: %s",self.mode, self.state)
             if self.state == "C":#custom speed for PID
-                rospy.loginfo(" vesc1 speed: %s\n vesc2 speed: %s", self.inputSpeed_v1, self.inputSpeed_v2)
+                rospy.loginfo(" \nvesc1 speed: %s\n vesc2 speed: %s", self.inputSpeed_v1, self.inputSpeed_v2)
                 self.vesc1_pub.publish(self.inputSpeed_v1)
                 self.vesc2_pub.publish(self.inputSpeed_v2)
             elif self.state == "W": #forward
